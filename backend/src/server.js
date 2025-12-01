@@ -28,28 +28,41 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
-// CORS
-const corsOptions = process.env.NODE_ENV === 'development'
-  ? {
-      origin: true, // Allow all origins in development
-      credentials: true,
-    }
-  : {
-      origin: function (origin, callback) {
-        const allowedOrigins = process.env.ALLOWED_ORIGINS
-          ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-          : ['http://localhost:3000'];
+// CORS - Simplified for deployment
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
 
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-          const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-          return callback(new Error(msg), false);
-        }
+    // In production, check ALLOWED_ORIGINS
+    if (process.env.NODE_ENV === 'production') {
+      const allowedOrigins = process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+        : [];
+
+      // Log for debugging
+      console.log('Origin:', origin);
+      console.log('Allowed Origins:', allowedOrigins);
+
+      if (allowedOrigins.length === 0 || allowedOrigins.includes('*')) {
+        // If ALLOWED_ORIGINS is empty or *, allow all
         return callback(null, true);
-      },
-      credentials: true,
-    };
+      }
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      }
+
+      const msg = `CORS: Origin ${origin} not allowed. Allowed origins: ${allowedOrigins.join(', ')}`;
+      console.error(msg);
+      return callback(new Error(msg), false);
+    }
+
+    // In development, allow all
+    return callback(null, true);
+  },
+  credentials: true,
+};
 
 app.use(cors(corsOptions));
 
