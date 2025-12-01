@@ -16,6 +16,9 @@ connectDB();
 
 const app = express();
 
+// Trust proxy - required for deployment on Render, Heroku, etc.
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
