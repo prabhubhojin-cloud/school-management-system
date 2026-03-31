@@ -19,9 +19,6 @@ const app = express();
 // Trust proxy - required for deployment on Render, Heroku, etc.
 app.set('trust proxy', 1);
 
-// Security middleware
-app.use(helmet());
-
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -31,7 +28,7 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
-// CORS - Simplified for deployment
+// CORS - must be before helmet
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, Postman, curl)
@@ -80,6 +77,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// Security middleware (after cors to avoid blocking preflight)
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // Body parser
 app.use(express.json());
