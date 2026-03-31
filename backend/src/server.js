@@ -56,6 +56,18 @@ const corsOptions = {
         return callback(null, true);
       }
 
+      // Support wildcard pattern matching (e.g. *.vercel.app)
+      const wildcardMatch = allowedOrigins.some(allowed => {
+        if (allowed.startsWith('*.')) {
+          const domain = allowed.slice(1); // e.g. ".vercel.app"
+          return origin.endsWith(domain);
+        }
+        return false;
+      });
+      if (wildcardMatch) {
+        return callback(null, true);
+      }
+
       const msg = `CORS: Origin ${origin} not allowed. Allowed origins: ${allowedOrigins.join(', ')}`;
       console.error(msg);
       return callback(new Error(msg), false);
