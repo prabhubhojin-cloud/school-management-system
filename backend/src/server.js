@@ -85,9 +85,6 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files (uploaded receipts)
-app.use('/uploads', express.static('uploads'));
-
 // Compression
 app.use(compression());
 

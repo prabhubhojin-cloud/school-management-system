@@ -1,5 +1,6 @@
 const FeeInstallment = require('../models/FeeInstallment');
 const FeeConfiguration = require('../models/FeeConfiguration');
+const { uploadToS3 } = require('../middleware/upload');
 
 // @desc    Get all fee installments
 // @route   GET /api/fee-installments
@@ -119,9 +120,9 @@ exports.processPayment = async (req, res) => {
     if (transactionId) installment.transactionId = transactionId;
     if (remarks) installment.remarks = remarks;
 
-    // Add receipt image if uploaded
+    // Upload receipt image to S3 if provided
     if (req.file) {
-      installment.receiptImage = req.file.path;
+      installment.receiptImage = await uploadToS3(req.file, 'receipts');
     }
 
     // Track who processed the payment

@@ -2,6 +2,7 @@ const Student = require('../models/Student');
 const User = require('../models/User');
 const FeeConfiguration = require('../models/FeeConfiguration');
 const FeeInstallment = require('../models/FeeInstallment');
+const { uploadToS3 } = require('../middleware/upload');
 
 // Helper function to generate admission number
 const generateAdmissionNumber = async () => {
@@ -248,38 +249,39 @@ exports.createStudent = async (req, res) => {
     // Generate admission number automatically
     studentData.admissionNumber = await generateAdmissionNumber();
 
-    // Add document paths from uploaded files
+    // Upload documents to S3 if provided
     if (req.files) {
-      studentData.studentDocuments = {
-        birthCertificate: req.files.birthCertificate?.[0]?.path || req.files.birthCertificate?.path,
-        aadharCard: req.files.aadharCard?.[0]?.path || req.files.aadharCard?.path,
-        transferCertificate: req.files.transferCertificate?.[0]?.path || req.files.transferCertificate?.path,
-        studentPhoto: req.files.studentPhoto?.[0]?.path || req.files.studentPhoto?.path,
-        additionalDoc1: req.files.additionalDoc1?.[0]?.path || req.files.additionalDoc1?.path,
-        additionalDoc2: req.files.additionalDoc2?.[0]?.path || req.files.additionalDoc2?.path,
+      const s3File = async (fieldName) => {
+        const f = req.files[fieldName]?.[0] || req.files[fieldName];
+        return f ? await uploadToS3(f, 'students') : undefined;
       };
 
-      // Father documents
+      studentData.studentDocuments = {
+        birthCertificate:    await s3File('birthCertificate'),
+        aadharCard:          await s3File('aadharCard'),
+        transferCertificate: await s3File('transferCertificate'),
+        studentPhoto:        await s3File('studentPhoto'),
+        additionalDoc1:      await s3File('additionalDoc1'),
+        additionalDoc2:      await s3File('additionalDoc2'),
+      };
+
       if (studentData.father) {
-        studentData.father.idProof = req.files.fatherIdProof?.[0]?.path || req.files.fatherIdProof?.path;
-        studentData.father.addressProof = req.files.fatherAddressProof?.[0]?.path || req.files.fatherAddressProof?.path;
-        studentData.father.photo = req.files.fatherPhoto?.[0]?.path || req.files.fatherPhoto?.path;
+        studentData.father.idProof      = await s3File('fatherIdProof');
+        studentData.father.addressProof = await s3File('fatherAddressProof');
+        studentData.father.photo        = await s3File('fatherPhoto');
       }
 
-      // Mother documents
       if (studentData.mother) {
-        studentData.mother.idProof = req.files.motherIdProof?.[0]?.path || req.files.motherIdProof?.path;
-        studentData.mother.addressProof = req.files.motherAddressProof?.[0]?.path || req.files.motherAddressProof?.path;
-        studentData.mother.photo = req.files.motherPhoto?.[0]?.path || req.files.motherPhoto?.path;
+        studentData.mother.idProof      = await s3File('motherIdProof');
+        studentData.mother.addressProof = await s3File('motherAddressProof');
+        studentData.mother.photo        = await s3File('motherPhoto');
       }
 
-      // Guardian documents (if included)
       if (includeGuardian && studentData.guardian) {
-        studentData.guardian.idProof = req.files.guardianIdProof?.[0]?.path || req.files.guardianIdProof?.path;
-        studentData.guardian.addressProof = req.files.guardianAddressProof?.[0]?.path || req.files.guardianAddressProof?.path;
-        studentData.guardian.photo = req.files.guardianPhoto?.[0]?.path || req.files.guardianPhoto?.path;
+        studentData.guardian.idProof      = await s3File('guardianIdProof');
+        studentData.guardian.addressProof = await s3File('guardianAddressProof');
+        studentData.guardian.photo        = await s3File('guardianPhoto');
       } else if (!includeGuardian) {
-        // Clear guardian data if not included
         studentData.guardian = undefined;
       }
     }
@@ -343,70 +345,43 @@ exports.updateStudent = async (req, res) => {
     const studentData = req.body.studentData ? JSON.parse(req.body.studentData) : req.body;
     const includeGuardian = req.body.includeGuardian === 'true';
 
-    // Update document paths from uploaded files (if new files provided)
+    // Upload new files to S3 (only replaces fields where new file is provided)
     if (req.files) {
-      // Initialize studentDocuments if it doesn't exist
-      if (!studentData.studentDocuments) {
-        studentData.studentDocuments = {};
-      }
+      if (!studentData.studentDocuments) studentData.studentDocuments = {};
 
-      // Update only if new files are uploaded
-      if (req.files.birthCertificate) {
-        studentData.studentDocuments.birthCertificate = req.files.birthCertificate[0]?.path || req.files.birthCertificate.path;
-      }
-      if (req.files.aadharCard) {
-        studentData.studentDocuments.aadharCard = req.files.aadharCard[0]?.path || req.files.aadharCard.path;
-      }
-      if (req.files.transferCertificate) {
-        studentData.studentDocuments.transferCertificate = req.files.transferCertificate[0]?.path || req.files.transferCertificate.path;
-      }
-      if (req.files.studentPhoto) {
-        studentData.studentDocuments.studentPhoto = req.files.studentPhoto[0]?.path || req.files.studentPhoto.path;
-      }
-      if (req.files.additionalDoc1) {
-        studentData.studentDocuments.additionalDoc1 = req.files.additionalDoc1[0]?.path || req.files.additionalDoc1.path;
-      }
-      if (req.files.additionalDoc2) {
-        studentData.studentDocuments.additionalDoc2 = req.files.additionalDoc2[0]?.path || req.files.additionalDoc2.path;
-      }
+      const s3File = async (fieldName) => {
+        const f = req.files[fieldName]?.[0] || req.files[fieldName];
+        return f ? await uploadToS3(f, 'students') : undefined;
+      };
 
-      // Father documents
+      const updateIfUploaded = async (obj, key, fieldName) => {
+        const url = await s3File(fieldName);
+        if (url) obj[key] = url;
+      };
+
+      await updateIfUploaded(studentData.studentDocuments, 'birthCertificate',    'birthCertificate');
+      await updateIfUploaded(studentData.studentDocuments, 'aadharCard',          'aadharCard');
+      await updateIfUploaded(studentData.studentDocuments, 'transferCertificate', 'transferCertificate');
+      await updateIfUploaded(studentData.studentDocuments, 'studentPhoto',        'studentPhoto');
+      await updateIfUploaded(studentData.studentDocuments, 'additionalDoc1',      'additionalDoc1');
+      await updateIfUploaded(studentData.studentDocuments, 'additionalDoc2',      'additionalDoc2');
+
       if (studentData.father) {
-        if (req.files.fatherIdProof) {
-          studentData.father.idProof = req.files.fatherIdProof[0]?.path || req.files.fatherIdProof.path;
-        }
-        if (req.files.fatherAddressProof) {
-          studentData.father.addressProof = req.files.fatherAddressProof[0]?.path || req.files.fatherAddressProof.path;
-        }
-        if (req.files.fatherPhoto) {
-          studentData.father.photo = req.files.fatherPhoto[0]?.path || req.files.fatherPhoto.path;
-        }
+        await updateIfUploaded(studentData.father, 'idProof',      'fatherIdProof');
+        await updateIfUploaded(studentData.father, 'addressProof', 'fatherAddressProof');
+        await updateIfUploaded(studentData.father, 'photo',        'fatherPhoto');
       }
 
-      // Mother documents
       if (studentData.mother) {
-        if (req.files.motherIdProof) {
-          studentData.mother.idProof = req.files.motherIdProof[0]?.path || req.files.motherIdProof.path;
-        }
-        if (req.files.motherAddressProof) {
-          studentData.mother.addressProof = req.files.motherAddressProof[0]?.path || req.files.motherAddressProof.path;
-        }
-        if (req.files.motherPhoto) {
-          studentData.mother.photo = req.files.motherPhoto[0]?.path || req.files.motherPhoto.path;
-        }
+        await updateIfUploaded(studentData.mother, 'idProof',      'motherIdProof');
+        await updateIfUploaded(studentData.mother, 'addressProof', 'motherAddressProof');
+        await updateIfUploaded(studentData.mother, 'photo',        'motherPhoto');
       }
 
-      // Guardian documents
       if (includeGuardian && studentData.guardian) {
-        if (req.files.guardianIdProof) {
-          studentData.guardian.idProof = req.files.guardianIdProof[0]?.path || req.files.guardianIdProof.path;
-        }
-        if (req.files.guardianAddressProof) {
-          studentData.guardian.addressProof = req.files.guardianAddressProof[0]?.path || req.files.guardianAddressProof.path;
-        }
-        if (req.files.guardianPhoto) {
-          studentData.guardian.photo = req.files.guardianPhoto[0]?.path || req.files.guardianPhoto.path;
-        }
+        await updateIfUploaded(studentData.guardian, 'idProof',      'guardianIdProof');
+        await updateIfUploaded(studentData.guardian, 'addressProof', 'guardianAddressProof');
+        await updateIfUploaded(studentData.guardian, 'photo',        'guardianPhoto');
       } else if (!includeGuardian) {
         studentData.guardian = undefined;
       }
