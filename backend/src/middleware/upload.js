@@ -36,6 +36,12 @@ const upload = multer({
  * Returns the public URL.
  */
 const uploadToS3 = async (file, folder = 'uploads') => {
+  if (!file) return undefined;
+
+  if (!process.env.AWS_S3_BUCKET || !process.env.AWS_ACCESS_KEY_ID) {
+    throw new Error('S3 is not configured. Set AWS_S3_BUCKET, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION on Render.');
+  }
+
   const ext = path.extname(file.originalname);
   const key = `${folder}/${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
 
