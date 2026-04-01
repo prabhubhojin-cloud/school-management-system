@@ -18,6 +18,9 @@ import DailyAttendance from './pages/DailyAttendance';
 import MonthlyAttendance from './pages/MonthlyAttendance';
 import './styles/App.css';
 import './styles/Form.css';
+import './styles/Table.css';
+import './styles/Modal.css';
+import './styles/Dashboard.css';
 
 const queryClient = new QueryClient();
 

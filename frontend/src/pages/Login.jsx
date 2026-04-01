@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { FiMail, FiLock, FiGrid, FiArrowRight } from 'react-icons/fi';
 import '../styles/Login.css';
 
 const Login = () => {
@@ -14,39 +15,84 @@ const Login = () => {
     setLoading(true);
     const success = await login(credentials);
     setLoading(false);
-    if (success) {
-      navigate('/dashboard');
-    }
+    if (success) navigate('/dashboard');
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h1>School Management System</h1>
-        <h2>Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              value={credentials.email}
-              onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
-              required
-            />
+    <div className="login-page">
+      {/* Left branding panel */}
+      <div className="login-panel-left">
+        <div className="login-brand">
+          <div className="login-brand-icon">
+            <FiGrid size={32} color="#fff" />
           </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              value={credentials.password}
-              onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-              required
-            />
+          <h1>School Management System</h1>
+          <p>A complete platform to manage students, teachers, attendance, fees, and more — all in one place.</p>
+
+          <div className="login-features">
+            {[
+              'Student & Teacher Management',
+              'Attendance Tracking',
+              'Fee Collection & Reports',
+              'Report Cards & Academic Years',
+            ].map(f => (
+              <div className="login-feature-item" key={f}>
+                <div className="login-feature-dot" />
+                {f}
+              </div>
+            ))}
           </div>
-          <button type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
+        </div>
+      </div>
+
+      {/* Right form panel */}
+      <div className="login-panel-right">
+        <div className="login-form-box">
+          <div className="login-form-header">
+            <h2>Welcome back</h2>
+            <p>Sign in to your account to continue</p>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="login-field">
+              <label>Email address</label>
+              <div className="login-input-wrap">
+                <FiMail size={16} />
+                <input
+                  type="email"
+                  placeholder="you@school.com"
+                  value={credentials.email}
+                  onChange={e => setCredentials({ ...credentials, email: e.target.value })}
+                  required
+                  autoComplete="email"
+                />
+              </div>
+            </div>
+
+            <div className="login-field">
+              <label>Password</label>
+              <div className="login-input-wrap">
+                <FiLock size={16} />
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={credentials.password}
+                  onChange={e => setCredentials({ ...credentials, password: e.target.value })}
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="login-submit-btn" disabled={loading}>
+              {loading ? 'Signing in…' : <>Sign in <FiArrowRight size={16} /></>}
+            </button>
+          </form>
+
+          <p className="login-footer-note">
+            Contact your administrator if you need access.
+          </p>
+        </div>
       </div>
     </div>
   );

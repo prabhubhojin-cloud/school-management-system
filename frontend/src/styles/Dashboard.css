@@ -1,60 +1,178 @@
-.dashboard {
-  padding: 2rem 0;
+/* ─── Dashboard ─── */
+.dashboard { padding: 0; }
+
+.dashboard-welcome {
+  background: linear-gradient(135deg, var(--primary) 0%, #4338ca 100%);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.75rem;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
 }
 
-.dashboard-header {
-  margin-bottom: 2rem;
+.dashboard-welcome::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+}
+
+.dashboard-welcome::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  right: 80px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+
+.welcome-content {
+  position: relative;
+  z-index: 1;
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
 }
 
-.dashboard-header h1 {
-  font-size: 2rem;
-  color: var(--text-primary);
+.welcome-text h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  color: #fff;
 }
 
-.role-badge {
-  padding: 0.25rem 0.75rem;
-  background-color: var(--primary-color);
-  color: white;
-  border-radius: 12px;
+.welcome-text p {
   font-size: 0.875rem;
-  font-weight: 500;
+  color: rgba(255,255,255,0.75);
 }
 
+.welcome-role-badge {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(4px);
+}
+
+/* ─── Section heading ─── */
+.dashboard-section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 0.9rem;
+}
+
+/* ─── Grid ─── */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
+/* ─── Card ─── */
 .dashboard-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--card-accent, var(--primary));
+  opacity: 0;
+  transition: opacity var(--transition);
 }
 
 .dashboard-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: transparent;
 }
 
-.card-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+.dashboard-card:hover::before {
+  opacity: 1;
 }
 
-.dashboard-card h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
+.card-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-icon-bg, var(--primary-light));
+  color: var(--card-icon-color, var(--primary));
+  flex-shrink: 0;
+}
+
+.card-body h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--text-primary);
+  margin-bottom: 0.2rem;
 }
 
-.dashboard-card p {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
+.card-body p {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.card-arrow {
+  margin-top: auto;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  gap: 4px;
+  transition: color var(--transition), gap var(--transition);
+}
+
+.dashboard-card:hover .card-arrow {
+  color: var(--primary);
+  gap: 8px;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .dashboard-welcome { padding: 1.25rem; }
+  .welcome-text h1 { font-size: 1.2rem; }
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-card { padding: 1rem; }
+}
+
+@media (max-width: 380px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
 }
