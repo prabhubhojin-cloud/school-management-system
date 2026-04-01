@@ -24,7 +24,10 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await authAPI.getMe();
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 8000)
+        );
+        const response = await Promise.race([authAPI.getMe(), timeout]);
         setUser(response.data.data);
       } catch (error) {
         localStorage.removeItem('token');
