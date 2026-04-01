@@ -118,6 +118,15 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+
+  // Self-ping every 14 min to prevent Render free tier cold start
+  if (process.env.NODE_ENV === 'production' && process.env.RENDER_EXTERNAL_URL) {
+    setInterval(() => {
+      fetch(`${process.env.RENDER_EXTERNAL_URL}/health`)
+        .then(() => console.log('Self-ping OK'))
+        .catch(() => {});
+    }, 14 * 60 * 1000);
+  }
 });
 
 // Handle unhandled promise rejections
