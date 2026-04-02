@@ -107,6 +107,7 @@ const Users = () => {
       case 'accountant': return 'primary';
       case 'teacher': return 'info';
       case 'student': return 'success';
+      case 'office_incharge': return 'warning';
       default: return 'default';
     }
   };
@@ -128,6 +129,7 @@ const Users = () => {
           <option value="all">All Roles</option>
           <option value="admin">Admin</option>
           <option value="accountant">Accountant</option>
+          <option value="office_incharge">Office Incharge</option>
           <option value="teacher">Teacher</option>
           <option value="student">Student</option>
         </select>

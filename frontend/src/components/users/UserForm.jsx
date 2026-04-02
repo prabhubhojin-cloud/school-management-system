@@ -128,6 +128,7 @@ const UserForm = ({ isOpen, onClose, onSuccess, user }) => {
               <option value="accountant">Accountant</option>
               <option value="teacher">Teacher</option>
               <option value="student">Student</option>
+              <option value="office_incharge">Office Incharge</option>
               <option value="admin">Admin</option>
             </select>
           </div>
