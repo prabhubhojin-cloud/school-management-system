@@ -16,6 +16,8 @@ import FeeConfiguration from './pages/FeeConfiguration';
 import Users from './pages/Users';
 import DailyAttendance from './pages/DailyAttendance';
 import MonthlyAttendance from './pages/MonthlyAttendance';
+import StaffCheckIn from './pages/StaffCheckIn';
+import CheckInReport from './pages/CheckInReport';
 import './styles/App.css';
 import './styles/Form.css';
 import './styles/Table.css';
@@ -51,6 +53,8 @@ function App() {
               <Route path="users" element={<Users />} />
               <Route path="attendance/daily" element={<DailyAttendance />} />
               <Route path="attendance/monthly" element={<MonthlyAttendance />} />
+              <Route path="checkin" element={<StaffCheckIn />} />
+              <Route path="checkin/report" element={<CheckInReport />} />
             </Route>
           </Routes>
           <ToastContainer position="top-right" autoClose={3000} />

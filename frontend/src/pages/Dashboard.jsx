@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   FiUsers, FiUser, FiBook, FiCalendar,
   FiCheckSquare, FiBarChart2, FiDollarSign,
-  FiSettings, FiFileText, FiShield, FiArrowRight
+  FiSettings, FiFileText, FiShield, FiArrowRight, FiMapPin
 } from 'react-icons/fi';
 import '../styles/Dashboard.css';
 
@@ -22,6 +22,7 @@ const cardStyles = [
 
 const allCards = {
   admin: [
+    { title: 'Check-In Report',  path: '/checkin/report',    icon: FiMapPin,      description: 'View staff check-ins today' },
     { title: 'Students',         path: '/students',          icon: FiUsers,       description: 'Manage student records' },
     { title: 'Teachers',         path: '/teachers',          icon: FiUser,        description: 'Manage teacher profiles' },
     { title: 'Classes',          path: '/classes',           icon: FiBook,        description: 'Manage class sections' },
@@ -34,6 +35,7 @@ const allCards = {
     { title: 'Academic Years',   path: '/academicyears',     icon: FiCalendar,    description: 'Manage academic years' },
   ],
   office_incharge: [
+    { title: 'My Check-In',      path: '/checkin',           icon: FiMapPin,      description: 'Mark your presence today' },
     { title: 'Students',         path: '/students',          icon: FiUsers,       description: 'Manage student records' },
     { title: 'Daily Attendance', path: '/attendance/daily',  icon: FiCheckSquare, description: 'Mark daily attendance' },
     { title: 'Monthly Report',   path: '/attendance/monthly',icon: FiBarChart2,   description: 'View attendance reports' },
@@ -43,6 +45,7 @@ const allCards = {
     { title: 'Academic Years',   path: '/academicyears',     icon: FiCalendar,    description: 'View academic years' },
   ],
   teacher: [
+    { title: 'My Check-In',      path: '/checkin',           icon: FiMapPin,      description: 'Mark your presence today' },
     { title: 'My Classes',       path: '/classes',           icon: FiBook,        description: 'View your classes' },
     { title: 'Students',         path: '/students',          icon: FiUsers,       description: 'View student records' },
     { title: 'Daily Attendance', path: '/attendance/daily',  icon: FiCheckSquare, description: 'Mark daily attendance' },
@@ -54,7 +57,8 @@ const allCards = {
     { title: 'Report Cards', path: '/reportcards', icon: FiFileText,   description: 'View report cards' },
   ],
   accountant: [
-    { title: 'Fees',     path: '/fees',     icon: FiDollarSign, description: 'Fee management & collection' },
+    { title: 'My Check-In', path: '/checkin',           icon: FiMapPin,      description: 'Mark your presence today' },
+    { title: 'Fees',        path: '/fees',     icon: FiDollarSign, description: 'Fee management & collection' },
     { title: 'Students', path: '/students', icon: FiUsers,      description: 'View student records' },
   ],
 };

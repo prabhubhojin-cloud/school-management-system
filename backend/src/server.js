@@ -105,6 +105,7 @@ app.use('/api/fee-installments', require('./routes/feeInstallments'));
 app.use('/api/reportcards', require('./routes/reportCards'));
 app.use('/api/academicyears', require('./routes/academicYears'));
 app.use('/api/attendance', require('./routes/attendance'));
+app.use('/api/checkins', require('./routes/checkIns'));
 
 // Health check
 app.get('/health', (req, res) => {

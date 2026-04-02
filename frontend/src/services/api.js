@@ -143,3 +143,10 @@ export const attendanceAPI = {
   update: (id, data) => api.put(`/attendance/${id}`, data),
   delete: (id) => api.delete(`/attendance/${id}`),
 };
+
+export const checkInAPI = {
+  checkIn: (data) => api.post('/checkins', data),
+  getMyStatus: () => api.get('/checkins/my-status'),
+  getAll: (params) => api.get('/checkins', { params }),
+  getSchoolLocation: () => api.get('/checkins/school-location'),
+};

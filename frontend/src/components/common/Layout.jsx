@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
   FiMenu, FiX, FiHome, FiUsers, FiUser, FiBook,
   FiCalendar, FiCheckSquare, FiBarChart2, FiDollarSign,
-  FiSettings, FiShield, FiFileText, FiLogOut, FiGrid
+  FiSettings, FiShield, FiFileText, FiLogOut, FiGrid, FiMapPin
 } from 'react-icons/fi';
 import '../../styles/Layout.css';
 
@@ -42,6 +42,13 @@ const allNavItems = [
     section: 'Reports',
     items: [
       { label: 'Report Cards', path: '/reportcards', icon: FiFileText, roles: ['admin', 'teacher', 'student', 'office_incharge'] },
+    ],
+  },
+  {
+    section: 'Check-In',
+    items: [
+      { label: 'My Check-In',    path: '/checkin',        icon: FiMapPin,   roles: ['teacher', 'office_incharge', 'accountant'] },
+      { label: 'Check-In Report', path: '/checkin/report', icon: FiBarChart2, roles: ['admin'] },
     ],
   },
   {
