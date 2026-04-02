@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { checkInAPI } from '../services/api';
+import { checkInAPI, userAPI } from '../services/api';
 import {
   FiMapPin, FiLogIn, FiLogOut, FiCheckCircle,
   FiXCircle, FiUser, FiCalendar, FiClock
@@ -45,8 +45,13 @@ const CheckInReport = () => {
   const [toDate, setToDate] = useState(todayStr());
 
   useEffect(() => {
-    checkInAPI.getStaffList()
-      .then(res => setStaffList(res.data.data))
+    userAPI.getAll()
+      .then(res => {
+        const staff = res.data.data.filter(u =>
+          ['teacher', 'office_incharge', 'accountant'].includes(u.role) && u.isActive
+        );
+        setStaffList(staff);
+      })
       .catch(() => {});
   }, []);
 
