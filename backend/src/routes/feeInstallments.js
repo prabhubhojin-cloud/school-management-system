@@ -26,15 +26,15 @@ router.post('/generate-for-student', protect, authorize('admin'), generateFeesFo
 
 router.get('/student/:studentId/summary', protect, getStudentFeeSummary);
 
-router.post('/:id/payment', protect, authorize('admin', 'accountant'), upload.single('receiptImage'), processPayment);
-router.post('/:id/skip', protect, authorize('admin'), skipInstallment);
-router.post('/:id/unskip', protect, authorize('admin'), unskipInstallment);
-router.post('/:id/discount', protect, authorize('admin'), applyDiscount);
+router.post('/:id/payment', protect, authorize('admin', 'accountant', 'office_incharge'), upload.single('receiptImage'), processPayment);
+router.post('/:id/skip', protect, authorize('admin', 'office_incharge'), skipInstallment);
+router.post('/:id/unskip', protect, authorize('admin', 'office_incharge'), unskipInstallment);
+router.post('/:id/discount', protect, authorize('admin', 'office_incharge'), applyDiscount);
 
 router
   .route('/:id')
   .get(protect, getFeeInstallment)
-  .put(protect, authorize('admin'), updateFeeInstallment)
-  .delete(protect, authorize('admin'), deleteFeeInstallment);
+  .put(protect, authorize('admin', 'office_incharge'), updateFeeInstallment)
+  .delete(protect, authorize('admin', 'office_incharge'), deleteFeeInstallment);
 
 module.exports = router;

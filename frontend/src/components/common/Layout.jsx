@@ -12,36 +12,36 @@ const allNavItems = [
   {
     section: 'Overview',
     items: [
-      { label: 'Dashboard', path: '/dashboard', icon: FiHome, roles: ['admin', 'teacher', 'student', 'accountant'] },
+      { label: 'Dashboard', path: '/dashboard', icon: FiHome, roles: ['admin', 'teacher', 'student', 'accountant', 'office_incharge'] },
     ],
   },
   {
     section: 'Academic',
     items: [
-      { label: 'Students',        path: '/students',         icon: FiUsers,       roles: ['admin', 'teacher', 'accountant'] },
-      { label: 'Teachers',        path: '/teachers',         icon: FiUser,        roles: ['admin'] },
-      { label: 'Classes',         path: '/classes',          icon: FiBook,        roles: ['admin', 'teacher'] },
-      { label: 'Academic Years',  path: '/academicyears',    icon: FiCalendar,    roles: ['admin'] },
+      { label: 'Students',       path: '/students',      icon: FiUsers,    roles: ['admin', 'teacher', 'accountant', 'office_incharge'] },
+      { label: 'Teachers',       path: '/teachers',      icon: FiUser,     roles: ['admin'] },
+      { label: 'Classes',        path: '/classes',       icon: FiBook,     roles: ['admin', 'teacher', 'office_incharge'] },
+      { label: 'Academic Years', path: '/academicyears', icon: FiCalendar, roles: ['admin', 'office_incharge'] },
     ],
   },
   {
     section: 'Attendance',
     items: [
-      { label: 'Daily',   path: '/attendance/daily',   icon: FiCheckSquare, roles: ['admin', 'teacher'] },
-      { label: 'Monthly', path: '/attendance/monthly', icon: FiBarChart2,   roles: ['admin', 'teacher'] },
+      { label: 'Daily',   path: '/attendance/daily',   icon: FiCheckSquare, roles: ['admin', 'teacher', 'office_incharge'] },
+      { label: 'Monthly', path: '/attendance/monthly', icon: FiBarChart2,   roles: ['admin', 'teacher', 'office_incharge'] },
     ],
   },
   {
     section: 'Finance',
     items: [
-      { label: 'Fees',              path: '/fees',              icon: FiDollarSign, roles: ['admin', 'accountant', 'student'] },
+      { label: 'Fees',              path: '/fees',              icon: FiDollarSign, roles: ['admin', 'accountant', 'student', 'office_incharge'] },
       { label: 'Fee Configuration', path: '/fee-configuration', icon: FiSettings,   roles: ['admin'] },
     ],
   },
   {
     section: 'Reports',
     items: [
-      { label: 'Report Cards', path: '/reportcards', icon: FiFileText, roles: ['admin', 'teacher', 'student'] },
+      { label: 'Report Cards', path: '/reportcards', icon: FiFileText, roles: ['admin', 'teacher', 'student', 'office_incharge'] },
     ],
   },
   {

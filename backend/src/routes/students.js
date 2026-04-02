@@ -33,15 +33,15 @@ const uploadFields = upload.fields([
 
 router
   .route('/')
-  .get(protect, authorize('admin', 'teacher'), getStudents)
-  .post(protect, authorize('admin'), uploadFields, createStudent);
+  .get(protect, authorize('admin', 'teacher', 'office_incharge'), getStudents)
+  .post(protect, authorize('admin', 'office_incharge'), uploadFields, createStudent);
 
 router
   .route('/:id')
   .get(protect, getStudent)
-  .put(protect, authorize('admin'), uploadFields, updateStudent)
-  .delete(protect, authorize('admin'), deleteStudent);
+  .put(protect, authorize('admin', 'office_incharge'), uploadFields, updateStudent)
+  .delete(protect, authorize('admin', 'office_incharge'), deleteStudent);
 
-router.post('/:id/enroll', protect, authorize('admin'), enrollStudent);
+router.post('/:id/enroll', protect, authorize('admin', 'office_incharge'), enrollStudent);
 
 module.exports = router;

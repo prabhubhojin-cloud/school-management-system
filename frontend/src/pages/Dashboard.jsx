@@ -33,6 +33,15 @@ const allCards = {
     { title: 'Report Cards',     path: '/reportcards',       icon: FiFileText,    description: 'Manage report cards' },
     { title: 'Academic Years',   path: '/academicyears',     icon: FiCalendar,    description: 'Manage academic years' },
   ],
+  office_incharge: [
+    { title: 'Students',         path: '/students',          icon: FiUsers,       description: 'Manage student records' },
+    { title: 'Daily Attendance', path: '/attendance/daily',  icon: FiCheckSquare, description: 'Mark daily attendance' },
+    { title: 'Monthly Report',   path: '/attendance/monthly',icon: FiBarChart2,   description: 'View attendance reports' },
+    { title: 'Fees',             path: '/fees',              icon: FiDollarSign,  description: 'Fee management & collection' },
+    { title: 'Report Cards',     path: '/reportcards',       icon: FiFileText,    description: 'Manage report cards' },
+    { title: 'Classes',          path: '/classes',           icon: FiBook,        description: 'View classes' },
+    { title: 'Academic Years',   path: '/academicyears',     icon: FiCalendar,    description: 'View academic years' },
+  ],
   teacher: [
     { title: 'My Classes',       path: '/classes',           icon: FiBook,        description: 'View your classes' },
     { title: 'Students',         path: '/students',          icon: FiUsers,       description: 'View student records' },
@@ -51,10 +60,9 @@ const allCards = {
 };
 
 const Dashboard = () => {
-  const { user, isAdmin, isTeacher, isStudent, isAccountant } = useAuth();
+  const { user, isAdmin, isTeacher, isStudent, isAccountant, isOfficeIncharge } = useAuth();
   const navigate = useNavigate();
-
-  const role = isAdmin ? 'admin' : isTeacher ? 'teacher' : isAccountant ? 'accountant' : 'student';
+  const role = isAdmin ? 'admin' : isTeacher ? 'teacher' : isAccountant ? 'accountant' : isOfficeIncharge ? 'office_incharge' : 'student';
   const cards = allCards[role] || [];
 
   const firstName = user?.email?.split('@')[0] || 'User';
