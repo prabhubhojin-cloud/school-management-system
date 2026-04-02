@@ -149,4 +149,5 @@ export const checkInAPI = {
   getMyStatus: () => api.get('/checkins/my-status'),
   getAll: (params) => api.get('/checkins', { params }),
   getSchoolLocation: () => api.get('/checkins/school-location'),
+  getStaffList: () => api.get('/checkins/staff'),
 };

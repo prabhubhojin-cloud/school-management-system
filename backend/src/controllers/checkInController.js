@@ -97,21 +97,51 @@ exports.getMyStatus = async (req, res) => {
 // @access  Private (admin)
 exports.getAllCheckIns = async (req, res) => {
   try {
-    const { date, role, userId } = req.query;
+    const { date, role, userId, fromDate, toDate, checkInAfter } = req.query;
 
     const filter = {};
-    if (date) filter.date = date;
     if (role) filter.role = role;
     if (userId) filter.user = userId;
 
-    // Default to today if no date specified
-    if (!date) filter.date = new Date().toISOString().split('T')[0];
+    // Date range mode (for member history)
+    if (fromDate && toDate) {
+      filter.date = { $gte: fromDate, $lte: toDate };
+    } else {
+      // Single date mode — default to today
+      filter.date = date || new Date().toISOString().split('T')[0];
+    }
 
-    const records = await StaffCheckIn.find(filter)
+    let records = await StaffCheckIn.find(filter)
       .populate('user', 'email role')
       .sort({ checkInTime: 1 });
 
+    // Filter by check-in time after a given time (HH:MM) in single-date mode
+    if (checkInAfter && !fromDate) {
+      const [filterHour, filterMin] = checkInAfter.split(':').map(Number);
+      records = records.filter(r => {
+        const d = new Date(r.checkInTime);
+        const totalMins = d.getHours() * 60 + d.getMinutes();
+        return totalMins >= filterHour * 60 + filterMin;
+      });
+    }
+
     res.json({ success: true, count: records.length, data: records });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get staff members for dropdown
+// @route   GET /api/checkins/staff
+// @access  Private (admin)
+exports.getStaffList = async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const staff = await User.find({
+      role: { $in: ['teacher', 'office_incharge', 'accountant'] },
+      isActive: true,
+    }).select('email role').sort({ email: 1 });
+    res.json({ success: true, data: staff });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
