@@ -40,13 +40,19 @@ Thumbs.db
 *.swo
 *~
 
-# Uploads
+# Uploads (user-uploaded files — not static assets)
 uploads/
 *.pdf
 *.jpg
 *.jpeg
 *.png
 *.gif
+
+# Allow static assets in frontend/public
+!frontend/public/*.png
+!frontend/public/*.jpg
+!frontend/public/*.svg
+!frontend/public/*.ico
 
 # Misc
 .cache/
