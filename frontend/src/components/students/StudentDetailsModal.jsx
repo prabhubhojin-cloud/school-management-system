@@ -200,6 +200,118 @@ const StudentDetailsModal = ({ isOpen, onClose, student }) => {
               </div>
             </div>
           )}
+
+          {/* Sibling Info */}
+          {student.isSibling && (
+            <div className="details-section">
+              <h3>Sibling Information</h3>
+              <div className="details-grid">
+                <div className="detail-item">
+                  <label>Is Sibling:</label>
+                  <span className="status-badge" style={{ background: 'var(--primary-light, #e0e7ff)', color: 'var(--primary)' }}>Yes</span>
+                </div>
+                {student.siblingOf && (
+                  <div className="detail-item">
+                    <label>Sibling's Admission No:</label>
+                    <span>{student.siblingOf}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Documents */}
+          {student.studentDocuments && Object.values(student.studentDocuments).some(Boolean) && (
+            <div className="details-section">
+              <h3>Student Documents</h3>
+              <div className="documents-list">
+                {[
+                  { key: 'birthCertificate', label: 'Birth Certificate' },
+                  { key: 'aadharCard', label: 'Aadhar Card' },
+                  { key: 'transferCertificate', label: 'Transfer Certificate' },
+                  { key: 'studentPhoto', label: 'Student Photo' },
+                  { key: 'additionalDoc1', label: 'Additional Doc 1' },
+                  { key: 'additionalDoc2', label: 'Additional Doc 2' },
+                ].filter(d => student.studentDocuments[d.key]).map(d => (
+                  <a key={d.key} href={student.studentDocuments[d.key]} target="_blank" rel="noreferrer" className="doc-link">
+                    <span className="doc-icon">📄</span> {d.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Father Documents */}
+          {student.father && (student.father.idProof || student.father.photo || student.father.addressProof) && (
+            <div className="details-section">
+              <h3>Father's Documents</h3>
+              <div className="documents-list">
+                {student.father.idProof && (
+                  <a href={student.father.idProof} target="_blank" rel="noreferrer" className="doc-link">
+                    <span className="doc-icon">📄</span> ID Proof
+                  </a>
+                )}
+                {student.father.addressProof && (
+                  <a href={student.father.addressProof} target="_blank" rel="noreferrer" className="doc-link">
+                    <span className="doc-icon">📄</span> Address Proof
+                  </a>
+                )}
+                {student.father.photo && (
+                  <a href={student.father.photo} target="_blank" rel="noreferrer" className="doc-link">
+                    <span className="doc-icon">🖼️</span> Photo
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Mother Documents */}
+          {student.mother && (student.mother.idProof || student.mother.photo || student.mother.addressProof) && (
+            <div className="details-section">
+              <h3>Mother's Documents</h3>
+              <div className="documents-list">
+                {student.mother.idProof && (
+                  <a href={student.mother.idProof} target="_blank" rel="noreferrer" className="doc-link">
+                    <span className="doc-icon">📄</span> ID Proof
+                  </a>
+                )}
+                {student.mother.addressProof && (
+                  <a href={student.mother.addressProof} target="_blank" rel="noreferrer" className="doc-link">
+                    <span className="doc-icon">📄</span> Address Proof
+                  </a>
+                )}
+                {student.mother.photo && (
+                  <a href={student.mother.photo} target="_blank" rel="noreferrer" className="doc-link">
+                    <span className="doc-icon">🖼️</span> Photo
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Guardian Documents */}
+          {student.guardian && (student.guardian.idProof || student.guardian.photo || student.guardian.addressProof) && (
+            <div className="details-section">
+              <h3>Guardian's Documents</h3>
+              <div className="documents-list">
+                {student.guardian.idProof && (
+                  <a href={student.guardian.idProof} target="_blank" rel="noreferrer" className="doc-link">
+                    <span className="doc-icon">📄</span> ID Proof
+                  </a>
+                )}
+                {student.guardian.addressProof && (
+                  <a href={student.guardian.addressProof} target="_blank" rel="noreferrer" className="doc-link">
+                    <span className="doc-icon">📄</span> Address Proof
+                  </a>
+                )}
+                {student.guardian.photo && (
+                  <a href={student.guardian.photo} target="_blank" rel="noreferrer" className="doc-link">
+                    <span className="doc-icon">🖼️</span> Photo
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="modal-footer">

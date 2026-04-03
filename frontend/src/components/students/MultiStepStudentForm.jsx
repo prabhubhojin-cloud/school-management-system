@@ -108,11 +108,32 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
       fetchClasses();
 
       if (student) {
-        // Pre-fill form for editing
-        setFormData({
-          ...formData,
+        const defaultAddr = { street: '', city: '', state: '', pinCode: '' };
+        setFormData(prev => ({
+          ...prev,
           ...student,
-        });
+          dateOfBirth: student.dateOfBirth?.split('T')[0] || '',
+          admissionDate: student.admissionDate?.split('T')[0] || '',
+          currentClass: student.currentClass?._id || student.currentClass || '',
+          currentAcademicYear: student.currentAcademicYear?._id || student.currentAcademicYear || '',
+          address: { ...defaultAddr, ...student.address },
+          father: {
+            ...prev.father,
+            ...student.father,
+            address: { ...defaultAddr, ...student.father?.address },
+          },
+          mother: {
+            ...prev.mother,
+            ...student.mother,
+            address: { ...defaultAddr, ...student.mother?.address },
+          },
+          guardian: {
+            ...prev.guardian,
+            ...student.guardian,
+            address: { ...defaultAddr, ...student.guardian?.address },
+          },
+        }));
+        if (student.guardian?.name) setIncludeGuardian(true);
       }
     }
   }, [isOpen, student]);
@@ -196,7 +217,7 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
           setError('Please fill all required fields in Student Details');
           return false;
         }
-        if (!documents.birthCertificate || !documents.aadharCard || !documents.studentPhoto) {
+        if (!student && (!documents.birthCertificate || !documents.aadharCard || !documents.studentPhoto)) {
           setError('Please upload Birth Certificate, Aadhar Card, and Student Photo');
           return false;
         }
@@ -206,7 +227,7 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
           setError('Please fill required Father information');
           return false;
         }
-        if (!documents.fatherIdProof || !documents.fatherPhoto) {
+        if (!student && (!documents.fatherIdProof || !documents.fatherPhoto)) {
           setError('Please upload Father ID Proof and Photo');
           return false;
         }
@@ -216,7 +237,7 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
           setError('Please fill required Mother information');
           return false;
         }
-        if (!documents.motherIdProof || !documents.motherPhoto) {
+        if (!student && (!documents.motherIdProof || !documents.motherPhoto)) {
           setError('Please upload Mother ID Proof and Photo');
           return false;
         }
@@ -227,7 +248,7 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
             setError('Please fill required Guardian information');
             return false;
           }
-          if (!documents.guardianIdProof || !documents.guardianPhoto) {
+          if (!student && (!documents.guardianIdProof || !documents.guardianPhoto)) {
             setError('Please upload Guardian ID Proof and Photo');
             return false;
           }

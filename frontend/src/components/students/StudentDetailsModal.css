@@ -53,6 +53,32 @@
   font-weight: 500;
 }
 
+.documents-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-secondary, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 6px;
+  color: var(--primary, #4f46e5);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.doc-link:hover {
+  background: var(--primary-light, #e0e7ff);
+  border-color: var(--primary, #4f46e5);
+}
+
 @media (max-width: 768px) {
   .details-grid {
     grid-template-columns: 1fr;
