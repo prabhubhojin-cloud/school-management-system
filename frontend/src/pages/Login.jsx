@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiMail, FiLock, FiGrid, FiArrowRight } from 'react-icons/fi';
+import { FiMail, FiLock, FiArrowRight } from 'react-icons/fi';
 import '../styles/Login.css';
 
 const Login = () => {
@@ -27,11 +27,18 @@ const Login = () => {
       {/* Left branding panel */}
       <div className="login-panel-left">
         <div className="login-brand">
-          <div className="login-brand-icon">
-            <FiGrid size={32} color="#fff" />
-          </div>
-          <h1>School Management System</h1>
-          <p>A complete platform to manage students, teachers, attendance, fees, and more — all in one place.</p>
+          <img
+            src="/logo.png"
+            alt="Arvind Vidya Mandir"
+            style={{ width: 130, height: 130, objectFit: 'contain', marginBottom: '1.25rem', filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.3))' }}
+          />
+          <h1>Arvind Vidya Mandir</h1>
+          <p style={{ fontSize: '0.95rem', color: '#94a3b8', marginBottom: '0.4rem' }}>
+            गोविन्द नगर, काकोदेव, कानपुर
+          </p>
+          <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1.5rem' }}>
+            संस्थापित वर्षः 1970 &nbsp;|&nbsp; तमसो माँ ज्योतिर्गमय
+          </p>
 
           <div className="login-features">
             {[

@@ -79,7 +79,7 @@ const Dashboard = () => {
         <div className="welcome-content">
           <div className="welcome-text">
             <h1>Good day, {firstName} 👋</h1>
-            <p>Here's what you can manage from your dashboard.</p>
+            <p>Arvind Vidya Mandir — School Management System</p>
           </div>
           <div className="welcome-role-badge">{roleLabel}</div>
         </div>

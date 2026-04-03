@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
   FiMenu, FiX, FiHome, FiUsers, FiUser, FiBook,
   FiCalendar, FiCheckSquare, FiBarChart2, FiDollarSign,
-  FiSettings, FiShield, FiFileText, FiLogOut, FiGrid, FiMapPin
+  FiSettings, FiShield, FiFileText, FiLogOut, FiMapPin
 } from 'react-icons/fi';
 import '../../styles/Layout.css';
 
@@ -102,12 +102,14 @@ const Layout = () => {
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         {/* Brand */}
         <div className="sidebar-brand" onClick={() => navigate('/dashboard')}>
-          <div className="sidebar-brand-icon">
-            <FiGrid size={18} />
-          </div>
+          <img
+            src="/logo.png"
+            alt="AVM"
+            style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}
+          />
           <div className="sidebar-brand-text">
-            <span>School Manager</span>
-            <span>Management System</span>
+            <span>Arvind Vidya Mandir</span>
+            <span>School Management</span>
           </div>
         </div>
 
@@ -166,7 +168,7 @@ const Layout = () => {
               {sidebarOpen ? <FiX size={22} /> : <FiMenu size={22} />}
             </button>
             <span className="breadcrumb">
-              {currentPage?.label || 'School Management System'}
+              {currentPage?.label || 'Arvind Vidya Mandir'}
             </span>
           </div>
           <div className="top-header-right">
