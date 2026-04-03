@@ -48,6 +48,25 @@ const feeConfigurationSchema = new mongoose.Schema({
       },
     }],
   },
+  // Discount policies defined at configuration level
+  discounts: {
+    // General named discount presets (e.g. Staff Ward, Merit)
+    general: [{
+      name: { type: String, required: true },           // e.g. "Staff Ward Discount"
+      type: { type: String, enum: ['percentage', 'flat'], required: true },
+      value: { type: Number, required: true },           // 10 for 10% or 500 for flat ₹500
+      appliesTo: { type: String, enum: ['tuition', 'exam', 'all'], default: 'all' },
+    }],
+
+    // Sibling discount — auto-applied when student.isSibling = true
+    sibling: {
+      enabled: { type: Boolean, default: false },
+      type: { type: String, enum: ['percentage', 'flat'], default: 'percentage' },
+      value: { type: Number, default: 0 },              // e.g. 10 for 10%
+      appliesTo: { type: String, enum: ['tuition', 'exam', 'all'], default: 'tuition' },
+    },
+  },
+
   isActive: {
     type: Boolean,
     default: true,

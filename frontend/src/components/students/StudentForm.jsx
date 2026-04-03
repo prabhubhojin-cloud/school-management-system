@@ -34,6 +34,8 @@ const StudentForm = ({ isOpen, onClose, onSuccess, student = null }) => {
     currentAcademicYear: '',
     currentRollNumber: '',
     admissionDate: new Date().toISOString().split('T')[0],
+    isSibling: false,
+    siblingOf: '',
   });
 
   useEffect(() => {
@@ -63,7 +65,7 @@ const StudentForm = ({ isOpen, onClose, onSuccess, student = null }) => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setFormData(prev => ({
@@ -73,6 +75,8 @@ const StudentForm = ({ isOpen, onClose, onSuccess, student = null }) => {
           [child]: value,
         },
       }));
+    } else if (type === 'checkbox') {
+      setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -354,6 +358,34 @@ const StudentForm = ({ isOpen, onClose, onSuccess, student = null }) => {
                   onChange={handleChange}
                   required
                 />
+              </div>
+
+              <div className="form-group" style={{ marginTop: '1rem', padding: '1rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+                  <input
+                    type="checkbox"
+                    name="isSibling"
+                    checked={formData.isSibling || false}
+                    onChange={handleChange}
+                    style={{ width: 'auto', accentColor: 'var(--primary)' }}
+                  />
+                  Sibling of another student in school
+                </label>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 1.5rem' }}>
+                  Enable to apply sibling discount when generating fees
+                </p>
+                {formData.isSibling && (
+                  <div className="form-group" style={{ marginTop: '0.75rem', marginBottom: 0 }}>
+                    <label>Sibling's Admission Number</label>
+                    <input
+                      type="text"
+                      name="siblingOf"
+                      value={formData.siblingOf || ''}
+                      onChange={handleChange}
+                      placeholder="Enter admission number of the other sibling"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

@@ -135,6 +135,16 @@ const studentSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  // Sibling info
+  isSibling: {
+    type: Boolean,
+    default: false,
+  },
+  siblingOf: {
+    type: String, // admission number of the other sibling in the school
+    default: '',
+  },
+
   status: {
     type: String,
     enum: ['active', 'inactive', 'alumni'],

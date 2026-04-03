@@ -20,6 +20,8 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
       { name: 'Final Term', amount: 0 },
     ],
     otherFees: [],
+    generalDiscounts: [],
+    siblingDiscount: { enabled: false, type: 'percentage', value: 0, appliesTo: 'tuition' },
     isActive: true,
   });
 
@@ -42,6 +44,8 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
                 { name: 'Final Term', amount: 0 },
               ],
           otherFees: config.feeStructure?.otherFees || [],
+          generalDiscounts: config.discounts?.general || [],
+          siblingDiscount: config.discounts?.sibling || { enabled: false, type: 'percentage', value: 0, appliesTo: 'tuition' },
           isActive: config.isActive !== undefined ? config.isActive : true,
         });
       } else {
@@ -57,6 +61,8 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
             { name: 'Final Term', amount: 0 },
           ],
           otherFees: [],
+          generalDiscounts: [],
+          siblingDiscount: { enabled: false, type: 'percentage', value: 0, appliesTo: 'tuition' },
           isActive: true,
         });
       }
@@ -116,6 +122,33 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
     setFormData({ ...formData, otherFees: updatedOtherFees });
   };
 
+  const addGeneralDiscount = () => {
+    setFormData({
+      ...formData,
+      generalDiscounts: [...formData.generalDiscounts, { name: '', type: 'percentage', value: 0, appliesTo: 'all' }],
+    });
+  };
+
+  const handleGeneralDiscountChange = (index, field, value) => {
+    const updated = [...formData.generalDiscounts];
+    updated[index][field] = field === 'value' ? Number(value) : value;
+    setFormData({ ...formData, generalDiscounts: updated });
+  };
+
+  const removeGeneralDiscount = (index) => {
+    setFormData({ ...formData, generalDiscounts: formData.generalDiscounts.filter((_, i) => i !== index) });
+  };
+
+  const handleSiblingDiscountChange = (field, value) => {
+    setFormData({
+      ...formData,
+      siblingDiscount: {
+        ...formData.siblingDiscount,
+        [field]: field === 'value' ? Number(value) : field === 'enabled' ? value : value,
+      },
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -128,6 +161,10 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
           tuitionFee: Number(formData.tuitionFee),
           examFees: formData.examFees,
           otherFees: formData.otherFees,
+        },
+        discounts: {
+          general: formData.generalDiscounts,
+          sibling: formData.siblingDiscount,
         },
         isActive: formData.isActive,
       };
@@ -323,6 +360,119 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
                     >
                       Remove
                     </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Sibling Discount ── */}
+          <div className="form-section">
+            <h3>Sibling Discount</h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+              Auto-applied when a student is marked as a sibling during fee generation.
+            </p>
+
+            <div className="form-row">
+              <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                <input
+                  type="checkbox"
+                  id="siblingEnabled"
+                  checked={formData.siblingDiscount.enabled}
+                  onChange={e => handleSiblingDiscountChange('enabled', e.target.checked)}
+                  style={{ width: 'auto' }}
+                />
+                <label htmlFor="siblingEnabled" style={{ marginBottom: 0 }}>Enable sibling discount</label>
+              </div>
+            </div>
+
+            {formData.siblingDiscount.enabled && (
+              <div className="form-row" style={{ marginTop: '0.75rem' }}>
+                <div className="form-group">
+                  <label>Discount Type</label>
+                  <select value={formData.siblingDiscount.type} onChange={e => handleSiblingDiscountChange('type', e.target.value)}>
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="flat">Flat Amount (₹)</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Value {formData.siblingDiscount.type === 'percentage' ? '(%)' : '(₹)'}</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max={formData.siblingDiscount.type === 'percentage' ? 100 : undefined}
+                    value={formData.siblingDiscount.value}
+                    onChange={e => handleSiblingDiscountChange('value', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Applies To</label>
+                  <select value={formData.siblingDiscount.appliesTo} onChange={e => handleSiblingDiscountChange('appliesTo', e.target.value)}>
+                    <option value="tuition">Tuition Fee Only</option>
+                    <option value="exam">Exam Fee Only</option>
+                    <option value="all">All Fees</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ── General Discount Presets ── */}
+          <div className="form-section">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ marginBottom: 0 }}>Discount Presets</h3>
+              </div>
+              <button type="button" className="btn-small btn-success" onClick={addGeneralDiscount}>+ Add Preset</button>
+            </div>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem', marginBottom: '0.75rem' }}>
+              Named discount categories (e.g. Staff Ward, Merit) that can be manually applied to individual students.
+            </p>
+
+            {formData.generalDiscounts.length === 0 && (
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>No discount presets added.</p>
+            )}
+
+            {formData.generalDiscounts.map((d, index) => (
+              <div key={index} style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: '0.9rem', marginBottom: '0.75rem' }}>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Discount Name *</label>
+                    <input
+                      type="text"
+                      value={d.name}
+                      onChange={e => handleGeneralDiscountChange(index, 'name', e.target.value)}
+                      placeholder="e.g. Staff Ward, Merit, EWS"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Type</label>
+                    <select value={d.type} onChange={e => handleGeneralDiscountChange(index, 'type', e.target.value)}>
+                      <option value="percentage">Percentage (%)</option>
+                      <option value="flat">Flat Amount (₹)</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Value {d.type === 'percentage' ? '(%)' : '(₹)'}</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={d.value}
+                      onChange={e => handleGeneralDiscountChange(index, 'value', e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Applies To</label>
+                    <select value={d.appliesTo} onChange={e => handleGeneralDiscountChange(index, 'appliesTo', e.target.value)}>
+                      <option value="all">All Fees</option>
+                      <option value="tuition">Tuition Only</option>
+                      <option value="exam">Exam Only</option>
+                    </select>
+                  </div>
+                  <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
+                    <button type="button" className="btn-small btn-danger" onClick={() => removeGeneralDiscount(index)}>Remove</button>
                   </div>
                 </div>
               </div>

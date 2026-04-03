@@ -204,6 +204,19 @@ exports.generateFeesForClass = async (req, res) => {
     let feeInstallments = [];
     let skippedCount = 0;
 
+    const siblingDiscount = configuration.discounts?.sibling;
+
+    // Helper: calculate discount amount for a given feeType and base amount
+    const calcSiblingDiscount = (amount, feeType) => {
+      if (!siblingDiscount?.enabled || !siblingDiscount.value) return 0;
+      const applies = siblingDiscount.appliesTo;
+      if (applies !== 'all' && applies !== feeType) return 0;
+      if (siblingDiscount.type === 'percentage') {
+        return Math.round((amount * siblingDiscount.value) / 100);
+      }
+      return Math.min(siblingDiscount.value, amount);
+    };
+
     for (const student of students) {
       // Check if fees already exist for this student
       const existingFees = await FeeInstallment.findOne({
@@ -218,13 +231,16 @@ exports.generateFeesForClass = async (req, res) => {
         continue;
       }
 
+      const isSibling = !!student.isSibling;
+
       // Generate monthly tuition fees
       for (let i = 0; i < 12; i++) {
         const month = months[i];
         const dueDate = new Date(startDate);
         dueDate.setMonth(dueDate.getMonth() + i);
-        dueDate.setDate(10); // Due on 10th of each month
+        dueDate.setDate(10);
         const amount = configuration.feeStructure.tuitionFee;
+        const discount = isSibling ? calcSiblingDiscount(amount, 'tuition') : 0;
         const status = new Date() > dueDate ? 'overdue' : 'pending';
 
         feeInstallments.push({
@@ -233,19 +249,23 @@ exports.generateFeesForClass = async (req, res) => {
           class: configuration.class._id,
           feeType: 'tuition',
           feeName: `${month} Tuition Fee`,
-          month: month,
-          amount: amount,
+          month,
+          amount,
+          discount,
+          discountReason: discount > 0 ? 'Sibling Discount' : '',
           paidAmount: 0,
-          balance: amount,
-          dueDate: dueDate,
-          status: status,
+          balance: amount - discount,
+          dueDate,
+          status,
         });
       }
 
       // Generate exam fees
       configuration.feeStructure.examFees.forEach((exam, index) => {
         const dueDate = new Date(startDate);
-        dueDate.setMonth(dueDate.getMonth() + (index * 3)); // Quarterly
+        dueDate.setMonth(dueDate.getMonth() + (index * 3));
+        const amount = exam.amount;
+        const discount = isSibling ? calcSiblingDiscount(amount, 'exam') : 0;
         const status = new Date() > dueDate ? 'overdue' : 'pending';
 
         feeInstallments.push({
@@ -255,16 +275,21 @@ exports.generateFeesForClass = async (req, res) => {
           feeType: 'exam',
           feeName: exam.name,
           term: exam.name,
-          amount: exam.amount,
+          amount,
+          discount,
+          discountReason: discount > 0 ? 'Sibling Discount' : '',
           paidAmount: 0,
-          balance: exam.amount,
-          dueDate: dueDate,
-          status: status,
+          balance: amount - discount,
+          dueDate,
+          status,
         });
       });
 
       // Generate other fees
       configuration.feeStructure.otherFees.forEach((fee) => {
+        const amount = fee.amount;
+        const discount = isSibling ? calcSiblingDiscount(amount, 'other') : 0;
+
         if (fee.frequency === 'one-time' || fee.frequency === 'annual') {
           const dueDate = new Date(startDate);
           const status = new Date() > dueDate ? 'overdue' : 'pending';
@@ -275,11 +300,13 @@ exports.generateFeesForClass = async (req, res) => {
             class: configuration.class._id,
             feeType: 'other',
             feeName: fee.name,
-            amount: fee.amount,
+            amount,
+            discount,
+            discountReason: discount > 0 ? 'Sibling Discount' : '',
             paidAmount: 0,
-            balance: fee.amount,
-            dueDate: dueDate,
-            status: status,
+            balance: amount - discount,
+            dueDate,
+            status,
           });
         } else if (fee.frequency === 'monthly') {
           for (let i = 0; i < 12; i++) {
@@ -294,12 +321,14 @@ exports.generateFeesForClass = async (req, res) => {
               class: configuration.class._id,
               feeType: 'other',
               feeName: `${month} ${fee.name}`,
-              month: month,
-              amount: fee.amount,
+              month,
+              amount,
+              discount,
+              discountReason: discount > 0 ? 'Sibling Discount' : '',
               paidAmount: 0,
-              balance: fee.amount,
-              dueDate: dueDate,
-              status: status,
+              balance: amount - discount,
+              dueDate,
+              status,
             });
           }
         }
