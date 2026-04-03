@@ -34,10 +34,10 @@ const Login = () => {
           />
           <h1>Arvind Vidya Mandir</h1>
           <p style={{ fontSize: '0.95rem', color: '#94a3b8', marginBottom: '0.4rem' }}>
-            गोविन्द नगर, काकोदेव, कानपुर
+            Naveen Nagar, Kakadeo, Kanpur
           </p>
           <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1.5rem' }}>
-            संस्थापित वर्षः 1970 &nbsp;|&nbsp; तमसो माँ ज्योतिर्गमय
+            Est. 1970 &nbsp;|&nbsp; तमसो माँ ज्योतिर्गमय
           </p>
 
           <div className="login-features">
