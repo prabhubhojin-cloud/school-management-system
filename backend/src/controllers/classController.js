@@ -1,4 +1,25 @@
 const Class = require('../models/Class');
+const Teacher = require('../models/Teacher');
+
+// @desc    Get the class assigned to the logged-in teacher
+// @route   GET /api/classes/my-class
+// @access  Private (Teacher)
+exports.getMyClass = async (req, res) => {
+  try {
+    const teacher = await Teacher.findOne({ user: req.user.id });
+    if (!teacher) {
+      return res.status(404).json({ success: false, message: 'Teacher profile not found' });
+    }
+
+    const classData = await Class.findOne({ classTeacher: teacher._id })
+      .populate('academicYear', 'year')
+      .populate('classTeacher', 'firstName lastName');
+
+    res.json({ success: true, data: classData || null });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 // @desc    Get all classes
 // @route   GET /api/classes

@@ -66,6 +66,7 @@ export const teacherAPI = {
 export const classAPI = {
   getAll: (params) => api.get('/classes', { params }),
   getOne: (id) => api.get(`/classes/${id}`),
+  getMyClass: () => api.get('/classes/my-class'),
   create: (data) => api.post('/classes', data),
   update: (id, data) => api.put(`/classes/${id}`, data),
   delete: (id) => api.delete(`/classes/${id}`),
@@ -142,6 +143,8 @@ export const attendanceAPI = {
   getStudentStats: (studentId, params) => api.get(`/attendance/student/${studentId}/stats`, { params }),
   update: (id, data) => api.put(`/attendance/${id}`, data),
   delete: (id) => api.delete(`/attendance/${id}`),
+  markBulk: (data) => api.post('/attendance/bulk', data),
+  getBulk: (classId, date) => api.get(`/attendance/bulk/${classId}/${date}`),
 };
 
 export const checkInAPI = {

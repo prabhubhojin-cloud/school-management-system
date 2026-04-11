@@ -5,10 +5,13 @@ const {
   createClass,
   updateClass,
   deleteClass,
+  getMyClass,
 } = require('../controllers/classController');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
+
+router.get('/my-class', protect, authorize('teacher'), getMyClass);
 
 router
   .route('/')

@@ -447,3 +447,53 @@ exports.getStudentAttendanceStats = async (req, res) => {
     });
   }
 };
+
+
+const BulkAttendance = require('../models/BulkAttendance');
+
+// @desc    Submit bulk attendance count for a class
+// @route   POST /api/attendance/bulk
+// @access  Private (Admin, Teacher, Office Incharge)
+exports.markBulkAttendance = async (req, res) => {
+  try {
+    const { classId, date, academicYearId, totalEnrolled, presentCount, absentCount, lateCount, remarks } = req.body;
+
+    const existing = await BulkAttendance.findOne({ class: classId, date });
+
+    const payload = {
+      class: classId,
+      academicYear: academicYearId,
+      date,
+      totalEnrolled,
+      presentCount,
+      absentCount: absentCount || 0,
+      lateCount: lateCount || 0,
+      remarks: remarks || '',
+      submittedBy: req.user.id,
+    };
+
+    let record;
+    if (existing) {
+      record = await BulkAttendance.findByIdAndUpdate(existing._id, payload, { new: true });
+    } else {
+      record = await BulkAttendance.create(payload);
+    }
+
+    res.status(200).json({ success: true, data: record });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get bulk attendance for a class on a date
+// @route   GET /api/attendance/bulk/:classId/:date
+// @access  Private
+exports.getBulkAttendance = async (req, res) => {
+  try {
+    const { classId, date } = req.params;
+    const record = await BulkAttendance.findOne({ class: classId, date });
+    res.json({ success: true, data: record || null });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

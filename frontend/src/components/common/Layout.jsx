@@ -20,7 +20,7 @@ const allNavItems = [
     items: [
       { label: 'Students',       path: '/students',      icon: FiUsers,    roles: ['admin', 'teacher', 'accountant', 'office_incharge'] },
       { label: 'Teachers',       path: '/teachers',      icon: FiUser,     roles: ['admin'] },
-      { label: 'Classes',        path: '/classes',       icon: FiBook,     roles: ['admin', 'teacher', 'office_incharge'] },
+      { label: 'Classes',        path: '/classes',       icon: FiBook,     roles: ['admin', 'office_incharge'] },
       { label: 'Academic Years', path: '/academicyears', icon: FiCalendar, roles: ['admin', 'office_incharge'] },
     ],
   },

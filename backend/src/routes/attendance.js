@@ -7,6 +7,8 @@ const {
   updateAttendance,
   deleteAttendance,
   getStudentAttendanceStats,
+  markBulkAttendance,
+  getBulkAttendance,
 } = require('../controllers/attendanceController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -26,6 +28,10 @@ router.get('/class/:classId/monthly', protect, authorize('admin', 'teacher', 'of
 
 // Get attendance statistics for a student
 router.get('/student/:studentId/stats', protect, getStudentAttendanceStats);
+
+// Bulk attendance (count-based)
+router.post('/bulk', protect, authorize('admin', 'teacher', 'office_incharge'), markBulkAttendance);
+router.get('/bulk/:classId/:date', protect, authorize('admin', 'teacher', 'office_incharge'), getBulkAttendance);
 
 // Update and delete specific attendance record
 router

@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { studentAPI, feeInstallmentAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 import MultiStepStudentForm from '../components/students/MultiStepStudentForm';
 import StudentDetailsModal from '../components/students/StudentDetailsModal';
 import '../styles/Table.css';
 
 const Students = () => {
+  const { isAdmin, isAccountant, isOfficeIncharge } = useAuth();
+  const canManage = isAdmin || isAccountant || isOfficeIncharge;
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -106,9 +109,11 @@ const Students = () => {
     <div className="page-container">
       <div className="page-header">
         <h1>Students</h1>
-        <button className="btn-primary" onClick={handleAddStudent}>
-          Add Student
-        </button>
+        {canManage && (
+          <button className="btn-primary" onClick={handleAddStudent}>
+            Add Student
+          </button>
+        )}
       </div>
 
       <form onSubmit={handleSearch} className="search-form">
@@ -152,15 +157,19 @@ const Students = () => {
                   <button className="btn-small btn-info" onClick={() => handleViewStudent(student)}>
                     View
                   </button>
-                  <button className="btn-small btn-success" onClick={() => handleGenerateFees(student)}>
-                    Generate Fees
-                  </button>
-                  <button className="btn-small" onClick={() => handleEditStudent(student)}>
-                    Edit
-                  </button>
-                  <button className="btn-small btn-danger" onClick={() => handleDeleteStudent(student._id)}>
-                    Delete
-                  </button>
+                  {canManage && (
+                    <>
+                      <button className="btn-small btn-success" onClick={() => handleGenerateFees(student)}>
+                        Generate Fees
+                      </button>
+                      <button className="btn-small" onClick={() => handleEditStudent(student)}>
+                        Edit
+                      </button>
+                      <button className="btn-small btn-danger" onClick={() => handleDeleteStudent(student._id)}>
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
