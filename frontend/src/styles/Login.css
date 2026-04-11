@@ -199,21 +199,34 @@
 @media (max-width: 768px) {
   .login-page {
     flex-direction: column;
+    min-height: 100vh;
   }
 
   .login-panel-left {
-    padding: 2rem 1.5rem;
     flex: none;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .login-brand img {
+    width: 72px !important;
+    height: 72px !important;
+    margin-bottom: 0.6rem !important;
   }
 
   .login-features { display: none; }
 
-  .login-brand h1 { font-size: 1.4rem; }
-  .login-brand p { font-size: 0.85rem; }
+  .login-brand h1 { font-size: 1.15rem; margin-bottom: 0.25rem; }
+  .login-brand p { font-size: 0.78rem; margin-bottom: 0.2rem !important; }
 
   .login-panel-right {
     width: 100%;
     flex: 1;
-    padding: 1.5rem;
+    padding: 1.5rem 1.25rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .login-form-box {
+    max-width: 100%;
   }
 }

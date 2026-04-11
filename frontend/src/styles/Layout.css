@@ -280,12 +280,37 @@
   white-space: nowrap;
 }
 
+.header-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.header-logout-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
 /* ─── Page Content ─── */
 .main-content {
   flex: 1;
   padding: 1.5rem;
   max-width: 1400px;
   width: 100%;
+}
+
+/* Hide header logout on desktop — sidebar already has it */
+@media (min-width: 1025px) {
+  .header-logout-btn {
+    display: none;
+  }
 }
 
 /* ─── Mobile Responsive ─── */

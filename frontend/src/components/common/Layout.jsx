@@ -176,6 +176,9 @@ const Layout = () => {
               <div className="header-avatar">{initials}</div>
               <span className="header-email">{user?.email}</span>
             </div>
+            <button className="header-logout-btn" onClick={handleLogout} title="Sign out">
+              <FiLogOut size={17} />
+            </button>
           </div>
         </header>
 
