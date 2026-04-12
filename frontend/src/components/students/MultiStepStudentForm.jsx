@@ -208,6 +208,27 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
     setError('');
   };
 
+  // Count pending required documents for each step
+  const pendingDocCounts = {
+    1: [
+      !documents.birthCertificate && !(student?.studentDocuments?.birthCertificate),
+      !documents.aadharCard && !(student?.studentDocuments?.aadharCard),
+      !documents.studentPhoto && !(student?.studentDocuments?.studentPhoto),
+    ].filter(Boolean).length,
+    2: [
+      !documents.fatherIdProof && !(student?.father?.idProof),
+      !documents.fatherPhoto && !(student?.father?.photo),
+    ].filter(Boolean).length,
+    3: [
+      !documents.motherIdProof && !(student?.mother?.idProof),
+      !documents.motherPhoto && !(student?.mother?.photo),
+    ].filter(Boolean).length,
+    4: includeGuardian ? [
+      !documents.guardianIdProof && !(student?.guardian?.idProof),
+      !documents.guardianPhoto && !(student?.guardian?.photo),
+    ].filter(Boolean).length : 0,
+  };
+
   const validateStep = (step) => {
     switch (step) {
       case 1:
@@ -217,18 +238,10 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
           setError('Please fill all required fields in Student Details');
           return false;
         }
-        if (!student && (!documents.birthCertificate || !documents.aadharCard || !documents.studentPhoto)) {
-          setError('Please upload Birth Certificate, Aadhar Card, and Student Photo');
-          return false;
-        }
         break;
       case 2:
         if (!formData.father.name || !formData.father.phone) {
           setError('Please fill required Father information');
-          return false;
-        }
-        if (!student && (!documents.fatherIdProof || !documents.fatherPhoto)) {
-          setError('Please upload Father ID Proof and Photo');
           return false;
         }
         break;
@@ -237,19 +250,11 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
           setError('Please fill required Mother information');
           return false;
         }
-        if (!student && (!documents.motherIdProof || !documents.motherPhoto)) {
-          setError('Please upload Mother ID Proof and Photo');
-          return false;
-        }
         break;
       case 4:
         if (includeGuardian) {
           if (!formData.guardian.name || !formData.guardian.relation || !formData.guardian.phone) {
             setError('Please fill required Guardian information');
-            return false;
-          }
-          if (!student && (!documents.guardianIdProof || !documents.guardianPhoto)) {
-            setError('Please upload Guardian ID Proof and Photo');
             return false;
           }
         }
@@ -356,22 +361,29 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
 
         {/* Progress Steps */}
         <div className="step-indicator">
-          <div className={`step ${currentStep >= 1 ? 'active' : ''}`}>
-            <div className="step-number">1</div>
-            <div className="step-label">Student Details</div>
-          </div>
-          <div className={`step ${currentStep >= 2 ? 'active' : ''}`}>
-            <div className="step-number">2</div>
-            <div className="step-label">Father Info</div>
-          </div>
-          <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>
-            <div className="step-number">3</div>
-            <div className="step-label">Mother Info</div>
-          </div>
-          <div className={`step ${currentStep >= 4 ? 'active' : ''}`}>
-            <div className="step-number">4</div>
-            <div className="step-label">Guardian Info</div>
-          </div>
+          {[
+            { num: 1, label: 'Student' },
+            { num: 2, label: 'Father' },
+            { num: 3, label: 'Mother' },
+            { num: 4, label: 'Guardian' },
+          ].map(({ num, label }) => (
+            <div key={num} className={`step ${currentStep >= num ? 'active' : ''}`} style={{ position: 'relative' }}>
+              <div className="step-number">{num}</div>
+              <div className="step-label">{label}</div>
+              {pendingDocCounts[num] > 0 && (
+                <span style={{
+                  position: 'absolute', top: -4, right: -4,
+                  background: '#f59e0b', color: '#fff',
+                  fontSize: '0.6rem', fontWeight: 700,
+                  borderRadius: '50%', width: 16, height: 16,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  lineHeight: 1,
+                }}>
+                  {pendingDocCounts[num]}
+                </span>
+              )}
+            </div>
+          ))}
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -595,7 +607,16 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
                   </div>
                 </div>
 
-                <h4>Student Documents</h4>
+                <h4>Student Documents
+                  {pendingDocCounts[1] > 0 && (
+                    <span style={{ marginLeft: 10, fontSize: '0.75rem', fontWeight: 500, color: '#f59e0b' }}>
+                      {pendingDocCounts[1]} pending
+                    </span>
+                  )}
+                </h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.75rem', marginTop: '-0.25rem' }}>
+                  Documents are optional but can be uploaded later. Required: Birth Certificate, Aadhar Card, Student Photo.
+                </p>
                 <div className="documents-grid">
                   <FileUpload
                     label="Birth Certificate"
@@ -730,7 +751,14 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
                   </div>
                 </div>
 
-                <h4>Documents</h4>
+                <h4>Documents
+                  {pendingDocCounts[2] > 0 && (
+                    <span style={{ marginLeft: 10, fontSize: '0.75rem', fontWeight: 500, color: '#f59e0b' }}>
+                      {pendingDocCounts[2]} pending
+                    </span>
+                  )}
+                </h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.75rem', marginTop: '-0.25rem' }}>Optional — can be added later.</p>
                 <div className="documents-grid">
                   <FileUpload
                     label="ID Proof"
@@ -849,7 +877,14 @@ const MultiStepStudentForm = ({ isOpen, onClose, onSuccess, student = null }) =>
                   </div>
                 </div>
 
-                <h4>Documents</h4>
+                <h4>Documents
+                  {pendingDocCounts[3] > 0 && (
+                    <span style={{ marginLeft: 10, fontSize: '0.75rem', fontWeight: 500, color: '#f59e0b' }}>
+                      {pendingDocCounts[3]} pending
+                    </span>
+                  )}
+                </h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.75rem', marginTop: '-0.25rem' }}>Optional — can be added later.</p>
                 <div className="documents-grid">
                   <FileUpload
                     label="ID Proof"

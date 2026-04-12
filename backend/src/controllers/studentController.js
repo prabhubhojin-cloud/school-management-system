@@ -173,7 +173,7 @@ const autoGenerateFees = async (studentId, academicYearId, classId) => {
 // @access  Private (Admin, Teacher)
 exports.getStudents = async (req, res) => {
   try {
-    const { academicYear, class: classId, status, search } = req.query;
+    const { academicYear, class: classId, status, search, documentsIncomplete } = req.query;
 
     let query = {};
 
@@ -187,6 +187,24 @@ exports.getStudents = async (req, res) => {
         { lastName: { $regex: search, $options: 'i' } },
         { admissionNumber: { $regex: search, $options: 'i' } },
       ];
+    }
+
+    if (documentsIncomplete === 'true') {
+      const missingDocConditions = [
+        { 'studentDocuments.birthCertificate': { $in: [null, '', undefined] } },
+        { 'studentDocuments.aadharCard': { $in: [null, '', undefined] } },
+        { 'studentDocuments.studentPhoto': { $in: [null, '', undefined] } },
+        { 'father.idProof': { $in: [null, '', undefined] } },
+        { 'father.photo': { $in: [null, '', undefined] } },
+        { 'mother.idProof': { $in: [null, '', undefined] } },
+        { 'mother.photo': { $in: [null, '', undefined] } },
+      ];
+      if (query.$or) {
+        query.$and = [{ $or: query.$or }, { $or: missingDocConditions }];
+        delete query.$or;
+      } else {
+        query.$or = missingDocConditions;
+      }
     }
 
     const students = await Student.find(query)

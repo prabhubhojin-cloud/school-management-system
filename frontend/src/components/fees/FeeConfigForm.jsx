@@ -9,9 +9,10 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
   const [academicYears, setAcademicYears] = useState([]);
   const [classes, setClasses] = useState([]);
 
+  const [selectedClasses, setSelectedClasses] = useState([]); // multi-select for create
+
   const [formData, setFormData] = useState({
     academicYear: '',
-    class: '',
     tuitionFee: 0,
     examFees: [
       { name: 'First Term', amount: 0 },
@@ -31,9 +32,9 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
       fetchClasses();
 
       if (config) {
+        setSelectedClasses(config.class?._id ? [config.class._id] : []);
         setFormData({
           academicYear: config.academicYear?._id || '',
-          class: config.class?._id || '',
           tuitionFee: config.feeStructure?.tuitionFee || 0,
           examFees: config.feeStructure?.examFees?.length
             ? config.feeStructure.examFees
@@ -49,10 +50,10 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
           isActive: config.isActive !== undefined ? config.isActive : true,
         });
       } else {
+        setSelectedClasses([]);
         // Reset form for new config
         setFormData({
           academicYear: '',
-          class: '',
           tuitionFee: 0,
           examFees: [
             { name: 'First Term', amount: 0 },
@@ -149,14 +150,33 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
     });
   };
 
+  const toggleClass = (id) => {
+    setSelectedClasses(prev =>
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    );
+  };
+
+  const toggleAllClasses = () => {
+    if (selectedClasses.length === classes.length) {
+      setSelectedClasses([]);
+    } else {
+      setSelectedClasses(classes.map(c => c._id));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!config && selectedClasses.length === 0) {
+      toast.error('Please select at least one class');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const payload = {
+      const basePayload = {
         academicYear: formData.academicYear,
-        class: formData.class,
         feeStructure: {
           tuitionFee: Number(formData.tuitionFee),
           examFees: formData.examFees,
@@ -170,11 +190,11 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
       };
 
       if (config) {
-        await feeConfigurationAPI.update(config._id, payload);
+        await feeConfigurationAPI.update(config._id, { ...basePayload, class: selectedClasses[0] });
         toast.success('Fee configuration updated successfully');
       } else {
-        await feeConfigurationAPI.create(payload);
-        toast.success('Fee configuration created successfully');
+        const response = await feeConfigurationAPI.create({ ...basePayload, classes: selectedClasses });
+        toast.success(response.data.message || 'Fee configuration created successfully');
       }
 
       onSuccess();
@@ -221,20 +241,42 @@ const FeeConfigForm = ({ isOpen, onClose, onSuccess, config }) => {
               </div>
 
               <div className="form-group">
-                <label>Class *</label>
-                <select
-                  name="class"
-                  value={formData.class}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Class</option>
-                  {classes.map((cls) => (
-                    <option key={cls._id} value={cls._id}>
-                      {cls.name} - {cls.section}
-                    </option>
-                  ))}
-                </select>
+                <label>
+                  {config ? 'Class' : `Classes * (${selectedClasses.length} selected)`}
+                </label>
+                {config ? (
+                  // Edit mode: show the single class, non-editable
+                  <div style={{ padding: '0.5rem 0.75rem', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                    {classes.find(c => c._id === selectedClasses[0])?.name} — {classes.find(c => c._id === selectedClasses[0])?.section || '...'}
+                  </div>
+                ) : (
+                  // Create mode: multi-select checkboxes
+                  <div style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius)', maxHeight: 200, overflowY: 'auto', background: 'var(--bg)' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0.5rem 0.75rem', borderBottom: '1px solid var(--border)', cursor: 'pointer', background: 'var(--bg-secondary)', fontWeight: 600 }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedClasses.length === classes.length && classes.length > 0}
+                        onChange={toggleAllClasses}
+                        style={{ width: 'auto', accentColor: 'var(--primary)' }}
+                      />
+                      Select All Classes
+                    </label>
+                    {classes.map(cls => (
+                      <label key={cls._id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0.45rem 0.75rem', cursor: 'pointer', borderBottom: '1px solid var(--border)' }}>
+                        <input
+                          type="checkbox"
+                          checked={selectedClasses.includes(cls._id)}
+                          onChange={() => toggleClass(cls._id)}
+                          style={{ width: 'auto', accentColor: 'var(--primary)' }}
+                        />
+                        {cls.name} — {cls.section}
+                      </label>
+                    ))}
+                    {classes.length === 0 && (
+                      <div style={{ padding: '0.75rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>No classes found</div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

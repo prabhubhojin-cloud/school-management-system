@@ -59,17 +59,45 @@ exports.getFeeConfiguration = async (req, res) => {
   }
 };
 
-// @desc    Create fee configuration
+// @desc    Create fee configuration (supports multiple classes)
 // @route   POST /api/fee-configurations
 // @access  Private (Admin)
 exports.createFeeConfiguration = async (req, res) => {
   try {
-    const configuration = await FeeConfiguration.create(req.body);
+    const { classes, ...rest } = req.body;
 
-    res.status(201).json({
-      success: true,
-      data: configuration
-    });
+    // Multi-class: create one config per class
+    if (Array.isArray(classes) && classes.length > 0) {
+      const results = [];
+      const skipped = [];
+
+      for (const classId of classes) {
+        try {
+          const config = await FeeConfiguration.create({ ...rest, class: classId });
+          results.push(config);
+        } catch (err) {
+          if (err.code === 11000) {
+            skipped.push(classId);
+          } else {
+            throw err;
+          }
+        }
+      }
+
+      return res.status(201).json({
+        success: true,
+        count: results.length,
+        skipped: skipped.length,
+        message: skipped.length
+          ? `Created ${results.length} configuration(s). ${skipped.length} already existed and were skipped.`
+          : `Created ${results.length} configuration(s) successfully.`,
+        data: results,
+      });
+    }
+
+    // Single class (backward compat)
+    const configuration = await FeeConfiguration.create(req.body);
+    res.status(201).json({ success: true, data: configuration });
   } catch (error) {
     if (error.code === 11000) {
       return res.status(400).json({
@@ -77,10 +105,7 @@ exports.createFeeConfiguration = async (req, res) => {
         message: 'Fee configuration already exists for this class and academic year'
       });
     }
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
