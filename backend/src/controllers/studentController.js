@@ -173,19 +173,37 @@ const autoGenerateFees = async (studentId, academicYearId, classId) => {
 // @access  Private (Admin, Teacher)
 exports.getStudents = async (req, res) => {
   try {
-    const { academicYear, class: classId, status, search, documentsIncomplete } = req.query;
+    const {
+      academicYear, class: classId, status, search,
+      documentsIncomplete, gender, bloodGroup,
+      isSibling, admissionDateFrom, admissionDateTo,
+    } = req.query;
 
     let query = {};
 
     if (academicYear) query.currentAcademicYear = academicYear;
     if (classId) query.currentClass = classId;
     if (status) query.status = status;
+    if (gender) query.gender = gender;
+    if (bloodGroup) query.bloodGroup = bloodGroup;
+    if (isSibling === 'true') query.isSibling = true;
+
+    if (admissionDateFrom || admissionDateTo) {
+      query.admissionDate = {};
+      if (admissionDateFrom) query.admissionDate.$gte = new Date(admissionDateFrom);
+      if (admissionDateTo) {
+        const to = new Date(admissionDateTo);
+        to.setHours(23, 59, 59, 999);
+        query.admissionDate.$lte = to;
+      }
+    }
 
     if (search) {
       query.$or = [
         { firstName: { $regex: search, $options: 'i' } },
         { lastName: { $regex: search, $options: 'i' } },
         { admissionNumber: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
       ];
     }
 
