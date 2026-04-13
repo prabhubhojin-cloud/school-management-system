@@ -27,7 +27,7 @@ exports.checkIn = async (req, res) => {
 
     const schoolLat = parseFloat(process.env.SCHOOL_LATITUDE);
     const schoolLng = parseFloat(process.env.SCHOOL_LONGITUDE);
-    const radiusMeters = parseFloat(process.env.SCHOOL_RADIUS_METERS) || 200;
+    const radiusMeters = parseFloat(process.env.SCHOOL_RADIUS_METERS) || 300;
 
     if (!schoolLat || !schoolLng) {
       return res.status(500).json({ success: false, message: 'School location is not configured on the server' });
@@ -36,13 +36,19 @@ exports.checkIn = async (req, res) => {
     const distanceMeters = getDistanceMeters(latitude, longitude, schoolLat, schoolLng);
     const isWithinRange = distanceMeters <= radiusMeters;
 
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
 
-    // Upsert: if already checked in today, update checkout time
+    // Capture device fingerprint
+    const ip =
+      req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+      req.socket?.remoteAddress ||
+      '';
+    const userAgent = req.headers['user-agent'] || '';
+
+    // If already checked in today → check-out
     const existing = await StaffCheckIn.findOne({ user: req.user._id, date: today });
 
     if (existing) {
-      // Second tap = check-out
       existing.checkOutTime = new Date();
       await existing.save();
       return res.json({
@@ -51,6 +57,31 @@ exports.checkIn = async (req, res) => {
         data: existing,
         action: 'checkout',
       });
+    }
+
+    // Detect if another user already checked in from the same device today
+    let suspiciousDevice = false;
+    let suspiciousNote = '';
+
+    if (ip || userAgent) {
+      const sameDeviceRecord = await StaffCheckIn.findOne({
+        date: today,
+        user: { $ne: req.user._id },
+        'deviceInfo.ip': ip,
+        'deviceInfo.userAgent': userAgent,
+      }).populate('user', 'email');
+
+      if (sameDeviceRecord) {
+        suspiciousDevice = true;
+        suspiciousNote = `Same device used for check-in as ${sameDeviceRecord.user?.email || 'another user'} (${sameDeviceRecord.checkInTime ? new Date(sameDeviceRecord.checkInTime).toLocaleTimeString() : ''})`;
+
+        // Also flag the earlier record retroactively
+        if (!sameDeviceRecord.suspiciousDevice) {
+          sameDeviceRecord.suspiciousDevice = true;
+          sameDeviceRecord.suspiciousNote = `Same device later used by ${req.user.email}`;
+          await sameDeviceRecord.save();
+        }
+      }
     }
 
     const checkIn = await StaffCheckIn.create({
@@ -62,6 +93,9 @@ exports.checkIn = async (req, res) => {
       isWithinRange,
       distanceMeters: Math.round(distanceMeters),
       note: note || '',
+      deviceInfo: { ip, userAgent },
+      suspiciousDevice,
+      suspiciousNote,
     });
 
     await checkIn.populate('user', 'email role');
@@ -73,6 +107,7 @@ exports.checkIn = async (req, res) => {
         : `Checked in but you appear to be ${Math.round(distanceMeters)}m away from school`,
       data: checkIn,
       action: 'checkin',
+      warning: suspiciousDevice ? suspiciousNote : null,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -156,7 +191,7 @@ exports.getSchoolLocation = async (req, res) => {
     data: {
       latitude: parseFloat(process.env.SCHOOL_LATITUDE) || null,
       longitude: parseFloat(process.env.SCHOOL_LONGITUDE) || null,
-      radiusMeters: parseFloat(process.env.SCHOOL_RADIUS_METERS) || 200,
+      radiusMeters: parseFloat(process.env.SCHOOL_RADIUS_METERS) || 300,
       configured: !!(process.env.SCHOOL_LATITUDE && process.env.SCHOOL_LONGITUDE),
     },
   });

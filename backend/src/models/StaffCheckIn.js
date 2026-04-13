@@ -39,6 +39,19 @@ const staffCheckInSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  deviceInfo: {
+    ip: { type: String, default: '' },
+    userAgent: { type: String, default: '' },
+  },
+  // Set true if another user checked in from the same device (IP+UA) on the same day
+  suspiciousDevice: {
+    type: Boolean,
+    default: false,
+  },
+  suspiciousNote: {
+    type: String,
+    default: '',
+  },
 }, { timestamps: true });
 
 // One check-in per user per day

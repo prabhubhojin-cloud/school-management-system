@@ -80,6 +80,9 @@ const StaffCheckIn = () => {
       setCurrentPosition(pos);
       const res = await checkInAPI.checkIn({ latitude: pos.latitude, longitude: pos.longitude });
       toast.success(res.data.message);
+      if (res.data.warning) {
+        toast.warn(`⚠ ${res.data.warning}`, { autoClose: 8000 });
+      }
       setTodayRecord(res.data.data);
     } catch (err) {
       const msg = err.response?.data?.message || err.message;

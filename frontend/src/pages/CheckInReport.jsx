@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { checkInAPI, userAPI } from '../services/api';
 import {
   FiMapPin, FiLogIn, FiLogOut, FiCheckCircle,
-  FiXCircle, FiUser, FiCalendar, FiClock
+  FiXCircle, FiUser, FiCalendar, FiClock, FiAlertTriangle
 } from 'react-icons/fi';
 
 const formatTime = (dt) =>
@@ -82,6 +82,7 @@ const CheckInReport = () => {
 
   const presentCount = records.filter(r => r.isWithinRange).length;
   const remoteCount = records.filter(r => !r.isWithinRange).length;
+  const suspiciousCount = records.filter(r => r.suspiciousDevice).length;
 
   const selectedStaff = staffList.find(s => s._id === selectedUser);
 
@@ -196,10 +197,11 @@ const CheckInReport = () => {
       {records.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
           {[
-            { label: 'Total',       value: records.length,                                   color: 'var(--primary)',        bg: 'var(--primary-light)' },
-            { label: 'At School',   value: presentCount,                                     color: 'var(--success)',        bg: '#d1fae5' },
-            { label: 'Remote',      value: remoteCount,                                      color: 'var(--warning)',        bg: '#fef3c7' },
-            { label: 'Checked Out', value: records.filter(r => r.checkOutTime).length,       color: 'var(--text-secondary)', bg: '#f1f5f9' },
+            { label: 'Total',        value: records.length,                             color: 'var(--primary)',        bg: 'var(--primary-light)' },
+            { label: 'At School',    value: presentCount,                               color: 'var(--success)',        bg: '#d1fae5' },
+            { label: 'Remote',       value: remoteCount,                               color: 'var(--warning)',        bg: '#fef3c7' },
+            { label: 'Checked Out',  value: records.filter(r => r.checkOutTime).length, color: 'var(--text-secondary)', bg: '#f1f5f9' },
+            ...(suspiciousCount > 0 ? [{ label: 'Flagged', value: suspiciousCount, color: '#dc2626', bg: '#fee2e2' }] : []),
           ].map(s => (
             <div key={s.label} className="card" style={{ textAlign: 'center', padding: '0.85rem' }}>
               <div style={{ fontSize: '1.6rem', fontWeight: 800, color: s.color }}>{s.value}</div>
@@ -234,6 +236,7 @@ const CheckInReport = () => {
                   <th>Location</th>
                   <th>Distance</th>
                   <th>Status</th>
+                  <th>Device</th>
                 </tr>
               </thead>
               <tbody>
@@ -275,6 +278,18 @@ const CheckInReport = () => {
                       {r.isWithinRange
                         ? <span className="status-badge status-active" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><FiCheckCircle size={11} />At School</span>
                         : <span className="status-badge status-warning" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><FiXCircle size={11} />Remote</span>}
+                    </td>
+                    <td>
+                      {r.suspiciousDevice ? (
+                        <span
+                          title={r.suspiciousNote || 'Same device used for multiple check-ins'}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', background: '#fee2e2', color: '#dc2626', borderRadius: 12, fontSize: '0.72rem', fontWeight: 700, cursor: 'help', whiteSpace: 'nowrap' }}
+                        >
+                          <FiAlertTriangle size={11} /> Flagged
+                        </span>
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
