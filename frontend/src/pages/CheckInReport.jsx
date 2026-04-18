@@ -212,8 +212,8 @@ const CheckInReport = () => {
       )}
 
       {/* Table */}
-      <div className="table-container">
-        <div className="table-wrap">
+      <div className="table-container" style={{ overflowX: 'auto' }}>
+        <div className="table-wrap" style={{ minWidth: 700 }}>
           {loading ? (
             <div style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading…</div>
           ) : mode === MODE_MEMBER && !selectedUser ? (
