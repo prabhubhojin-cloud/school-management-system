@@ -121,7 +121,21 @@ exports.getMyStatus = async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
     const record = await StaffCheckIn.findOne({ user: req.user._id, date: today });
-    res.json({ success: true, data: record });
+
+    if (record) {
+      const currentRadius = parseFloat(process.env.SCHOOL_RADIUS_METERS) || 300;
+      const schoolLat = parseFloat(process.env.SCHOOL_LATITUDE);
+      const schoolLng = parseFloat(process.env.SCHOOL_LONGITUDE);
+      const obj = record.toObject();
+      if (schoolLat && schoolLng && record.location?.latitude && record.location?.longitude) {
+        obj.isWithinRange = getDistanceMeters(
+          record.location.latitude, record.location.longitude, schoolLat, schoolLng
+        ) <= currentRadius;
+      }
+      return res.json({ success: true, data: obj });
+    }
+
+    res.json({ success: true, data: null });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -160,7 +174,22 @@ exports.getAllCheckIns = async (req, res) => {
       });
     }
 
-    res.json({ success: true, count: records.length, data: records });
+    // Recompute isWithinRange using current radius (in case radius env var changed after check-in was stored)
+    const currentRadius = parseFloat(process.env.SCHOOL_RADIUS_METERS) || 300;
+    const schoolLat = parseFloat(process.env.SCHOOL_LATITUDE);
+    const schoolLng = parseFloat(process.env.SCHOOL_LONGITUDE);
+
+    const enriched = records.map(r => {
+      const obj = r.toObject();
+      if (schoolLat && schoolLng && r.location?.latitude && r.location?.longitude) {
+        obj.isWithinRange = getDistanceMeters(
+          r.location.latitude, r.location.longitude, schoolLat, schoolLng
+        ) <= currentRadius;
+      }
+      return obj;
+    });
+
+    res.json({ success: true, count: enriched.length, data: enriched });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
